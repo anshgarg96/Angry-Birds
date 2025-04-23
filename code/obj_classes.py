@@ -132,7 +132,7 @@ class Player():
                 for block in collision_blocks:
                     block.health = block.health - data.bird_dict[self.shot_bird.bird_type][block.block_type]*multiplier
                     self.new_score += data.bird_dict[self.shot_bird.bird_type][block.block_type]*multiplier*100
-                self.new_score += (self.end_time - self.start_time)*13
+                self.new_score += int((self.end_time - self.start_time)*13)
                 self.score_arr = np.linspace(self.score, self.new_score, data.frame_rate)
                 self.score_changing = True
                 self.shot_bird.kill()
