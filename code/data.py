@@ -1,4 +1,9 @@
-frame_rate = 70
+import pygame
+charge_sound = pygame.mixer.Sound("sounds/charge.mp3")
+charge_sound.set_volume(0.8)
+shoot_sound = pygame.mixer.Sound("sounds/shoot.mp3")
+shoot_sound.set_volume(0.5)
+frame_rate = 50
 no_of_markers = 10
 gravity = 0.5
 base_speed = 5.5

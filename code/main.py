@@ -6,6 +6,7 @@ import data
 import sys
 import tools
 
+
 clock = pygame.Clock()
 ctypes.windll.user32.SetProcessDPIAware()
 screen = pygame.display.set_mode((1920,1080))
@@ -24,12 +25,15 @@ while True:
     screen.blit(image, (0,0))
     screen.blit(enter_button.image, enter_button.rect)
     pygame.display.flip()
+
 image = pygame.image.load("images/home screen 1.jpg")
 game_state = 0
 player1_name = None
 player2_name = None
 while True:
     if game_state == 0:
+        pygame.mixer.music.load('sounds/angry-birds.ogg')
+        pygame.mixer.music.play()
         BG1_button = obj_classes.Button("cradle_of_wings (1).png", (300,180), scale = 1.1)
         BG2_button = obj_classes.Button("lava_button-modified (1).png", (850,180), scale = 1.1)
         game_selector_buttons = pygame.sprite.Group()
@@ -84,6 +88,7 @@ while True:
             if fair_submission:
                 player1_name = player1_input.text
                 player2_name = player2_input.text
+                pygame.mixer.stop()
                 break
             screen.blit(name_screen_freeze, (0,0))
             screen.blit(nameboard, nameboard_rect)
@@ -100,11 +105,19 @@ while True:
             pygame.display.flip()
     
     if game_state == 1:
+        pygame.mixer.music.load('sounds/Cradle_of_wings.mp3')
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play()
         while game_state == 1:
             game_state = engine_classes.BG1().run(player1_name, player2_name, screen)
+        pygame.mixer.stop()
     
     if game_state == 2:
+        pygame.mixer.music.load('sounds/Molten_mayhem.mp3')
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play()
         while game_state == 2:
-            game_state = engine_classes.BG2().run(player1_name, player2_name, screen)
+            game_state = engine_classes.BG1().run(player1_name, player2_name, screen, super=True)
+        pygame.mixer.stop()
 
 

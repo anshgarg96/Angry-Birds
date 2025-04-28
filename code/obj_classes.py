@@ -52,11 +52,8 @@ block_coords = [
 
 
 class Player():
-    def __init__(self, name, orientation, lava = False):
+    def __init__(self, name, orientation, bird_arr, block_arr, ammo_arr : list, lava = False):
         self.super = False
-        block_dict_start_index = 3 if lava else 0
-        block_dict_stop_index = 6 if lava else 3
-        print(block_dict_start_index, block_dict_stop_index)
         self.score_arr_index = 0
         self.score_changing = False
         self.score = 0
@@ -70,20 +67,21 @@ class Player():
         self.sling_other = pygame.transform.flip(pygame.image.load(data.sling_image[1]), orientation, False)
         self.sling_stem_rect = self.sling_stem.get_rect(topleft=sling_coords[orientation][0])
         self.sling_other_rect = self.sling_other.get_rect(topleft=sling_coords[orientation][1])
+        self.bird_ammo = ammo_arr.copy()
         self.shot_bird = None
-        bird_arr = np.random.choice( np.array(list(data.bird_dict.keys())), min(data.number_of_birds, len(bird_rest_placeholder_coords) + 1), True)
+        self.initialise_bird_and_blocks(bird_arr, block_arr)
+        self.birds_used = len(bird_rest_placeholder_coords) + 1
+    
+    def initialise_bird_and_blocks(self, bird_arr, block_arr):
         self.bird_group = pygame.sprite.Group()
         for idx, i in np.ndenumerate(bird_arr):
-            self.bird_group.add(Bird(i, orientation))
-        self.block_arr = np.random.choice( np.array(list(data.block_dict.keys())[block_dict_start_index:block_dict_stop_index]), data.number_of_blocks, True)
-        print(self.block_arr)
+            self.bird_group.add(Bird(i, self.orientation))
         self.block_group = pygame.sprite.Group()
-        self.birds_used = len(bird_rest_placeholder_coords) + 1
-        for idx, i in np.ndenumerate(self.block_arr):
+        for idx, i in np.ndenumerate(block_arr):
             self.block_group.add(Block(i))
         for i in range(data.number_of_blocks):
-            self.block_group.sprites()[i].rect.x, self.block_group.sprites()[i].rect.y = block_coords[int(orientation)][i]
-    
+            self.block_group.sprites()[i].rect.x, self.block_group.sprites()[i].rect.y = block_coords[int(self.orientation)][i]
+        
     def play(self, event):
         #print("==============================  STATE: ", self.state, "EVENT: ", event.type)
         if len(self.bird_group.sprites()) > 0:
@@ -95,12 +93,14 @@ class Player():
                 mouse_pos = pygame.mouse.get_pos()
                 if self.armed_bird.rect.collidepoint(mouse_pos):
                     self.state = 1
+                    data.charge_sound.play()
                     self.initial_arming_pos = pygame.Vector2(mouse_pos)
         elif self.state == 1:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pass
             if event.type == pygame.MOUSEBUTTONUP:
                 self.start_time = time.time()
+                data.shoot_sound.play()
                 self.bird_group.remove(self.armed_bird)
                 self.speed = self.calc_speed()
                 if self.super:
@@ -108,7 +108,7 @@ class Player():
                 self.state = 2
                 self.shot_bird = self.armed_bird
                 if self.birds_used < data.number_of_birds:
-                    self.bird_group.add(Bird(random.choice(list(data.bird_dict.keys())), self.orientation))
+                    self.bird_group.add(Bird(self.bird_ammo.pop(), self.orientation))
                     self.birds_used += 1
         elif self.state == 2:
             pass
@@ -207,13 +207,13 @@ class Player():
 
 
 class SuperPlayer(Player):
-    def __init__(self, name, orientation):
-        super().__init__(name, orientation, lava=True)
+    def __init__(self, name, orientation, bird_arr, block_arr, ammo_arr):
+        super().__init__(name, orientation, bird_arr, block_arr, ammo_arr, lava=True)
         self.super = True
         self.PowerUps = pygame.sprite.Group()
         self.wind_power = PowerUps("wind_power_up.png", PowerUps_placeholder_coords[self.orientation][0])
         self.double_damage_power = PowerUps("double_damage_powerup.png", PowerUps_placeholder_coords[self.orientation][1])
-        self.full_path_power = PowerUps("wind_power_up.png", PowerUps_placeholder_coords[self.orientation][2])
+        self.full_path_power = PowerUps("full_path.png", PowerUps_placeholder_coords[self.orientation][2])
         self.PowerUps.add(self.wind_power, self.double_damage_power, self.full_path_power)
         self.power_list = list(self.PowerUps)
 
@@ -347,7 +347,7 @@ class InputBox:
         pygame.draw.rect(screen, self.bg_color, self.rect, border_radius=self.corner_radius)
 
         # Draw border with rounded corners
-        pygame.draw.rect(screen, self.border_color, self.rect, width=2, border_radius=self.corner_radius)
+        pygame.draw.rect(screen, self.border_color, self.rect, width=5, border_radius=self.corner_radius)
 
         # Draw text
         screen.blit(self.txt_surface, (self.rect.x + 10, self.rect.y - 12))
