@@ -95,7 +95,7 @@ class BG1:
                 replay = replay_button.update(event)
             # Return next Game-state value
             if replay:
-                return 1
+                return 2 if super else 1
             if menu:
                 return 0
             if exit:
