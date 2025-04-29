@@ -46,7 +46,7 @@ bird_dict = {
         "ice-lava" : 2
     }
 }
-number_of_birds = 6
+number_of_birds = 10
 block_dict = {
     "wood" : {
         0 : "wood-square-0.png",
